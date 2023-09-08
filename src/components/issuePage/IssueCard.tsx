@@ -1,7 +1,7 @@
 import { useModal } from "../contexts/ModalContext";
 import DeleteIcon from "../icons/DeleteIcon";
 import EditIcon from "../icons/EditIcon";
-import EditIssueModal from "./EditIssueModal";
+import EditIssueModal from "./modal/EditIssueModal";
 import StatusOption from "./StatusOption";
 type IssueCard = {
   issueData: {

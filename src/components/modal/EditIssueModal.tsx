@@ -1,8 +1,7 @@
-import { useModal } from "../contexts/ModalContext";
+import { useModal } from "../../contexts/ModalContext";
 import Exit from "./Exit";
 import Modal from "./Modal";
-import StatusOption from "./StatusOption";
-
+import StatusOption from "../issuePage/StatusOption";
 export default function EditIssueModal() {
   const { handleCloseModal } = useModal();
 
@@ -13,7 +12,7 @@ export default function EditIssueModal() {
         <label>Title</label>
         <input className="border-transparent border-2 outline-green rounded-lg p-[2px] bg-gray-200 " />
         <label>Status</label>
-        <StatusOption className="border-transparent border-2rounded-lg p-[2px] bg-gray-200 text-black " />
+        <StatusOption className=" bg-gray-200 " />
         <label>Repository</label>
         <input className="border-transparent border-2 outline-green rounded-lg p-[2px] bg-gray-200 " />
         <label>Content</label>

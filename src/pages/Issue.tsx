@@ -1,8 +1,8 @@
-import AddNewIssue from "../components/AddNewIssue";
-import DecendenceFilter from "../components/DecendenceFilter";
-import IssueDataDisplay from "../components/IssueDataDisplay";
-import SearchBar from "../components/SearchBar";
-import StatusFilter from "../components/StatusFilter";
+import AddNewIssue from "../components/issuePage/AddNewIssue";
+import DecendenceFilter from "../components/issuePage/DecendenceFilter";
+import IssueDataDisplay from "../components/issuePage/IssueDataDisplay";
+import SearchBar from "../components/issuePage/SearchBar";
+import StatusFilter from "../components/issuePage/StatusFilter";
 export default function Issue() {
   return (
     <div className="flex flex-col w-full h-full bg-slate-200 p-6 items-center gap-2">
