@@ -2,6 +2,7 @@ type IconType = {
   width?: string;
   height?: string;
   className?: string;
+  onClick?: () => void;
 };
 export default function EditIcon(props: IconType) {
   return (
@@ -11,6 +12,7 @@ export default function EditIcon(props: IconType) {
       height={props.height || "20px"}
       viewBox="0 0 24 24"
       className={props.className}
+      onClick={props.onClick}
     >
       <path
         fill="currentColor"
