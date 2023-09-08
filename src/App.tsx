@@ -1,11 +1,16 @@
-import "./App.css";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import Home from "./pages/Home";
+import Issue from "./pages/Issue";
+
 function App() {
   return (
-    <div className="min-h-screen flex justify-center items-center">
-      <h1 className="text-3xl font-bold text-blue-600">
-        Install & Setup Vite + React + Typescript + Tailwind CSS 3
-      </h1>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="home" element={<Home />} />
+        <Route path="issue" element={<Issue />} />
+        <Route path="/" element={<Navigate to="/home" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
