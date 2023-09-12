@@ -11,7 +11,6 @@ export default function StatusOption(props: StatusOptionType) {
       defaultValue={props.defaultValue || "open"}
     >
       <option value="close">Close</option>
-      <option value="progress">In Progress</option>
       <option value="open">Open</option>
     </select>
   );

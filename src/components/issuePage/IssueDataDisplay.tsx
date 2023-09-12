@@ -10,14 +10,10 @@ export default function IssueDataDisplay() {
     fetchIssue();
   }, [fetchIssue]);
 
-  useEffect(() => {
-    console.log(state);
-  }, [state]);
-
   return (
     <>
       {state.issue.map((issue) => (
-        <IssueCard issueData={issue} />
+        <IssueCard key={issue.createdAt} issueData={issue} />
       ))}
     </>
   );

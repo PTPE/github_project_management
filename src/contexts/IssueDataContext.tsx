@@ -8,6 +8,9 @@ type action = {
 type state = {
   owner: string;
   token: string;
+  search: string;
+  filter: string;
+  order: string;
   issue: IssueType[];
 };
 
@@ -20,9 +23,11 @@ type IssueType = {
 };
 
 const initialState = {
-  isLoading: "",
+  search: "",
   owner: "",
   token: "",
+  filter: "",
+  order: "",
   issue: [
     {
       repository: "",
@@ -38,6 +43,9 @@ type ContextType = {
   state: state;
   fetchIssue: () => Promise<void>;
   fetchUser: (code: string) => Promise<void>;
+  updateSearchKeyWord: (search: string) => void;
+  updateFilter: (filter: string[]) => void;
+  updateOrder: (order: string) => void;
 };
 
 const BASE_URL = "http://localhost:8080";
@@ -52,7 +60,12 @@ function reducer(state: state, action: action): state {
       return { ...state, owner: action.payload as string };
     case "issue/load":
       return { ...state, issue: action.payload as state["issue"] };
-
+    case "issue/search":
+      return { ...state, search: action.payload as string };
+    case "issue/filter":
+      return { ...state, filter: action.payload as string };
+    case "issue/order":
+      return { ...state, order: action.payload as string };
     default:
       return state;
   }
@@ -95,11 +108,11 @@ export function IssueDataContextProvider({
       if (!state.owner) dispatch({ type: "user/load", payload: owner! });
 
       const res = await fetch(
-        `https://api.github.com/search/issues?q=${state.owner}`
+        `https://api.github.com/search/issues?q=${owner} ${state.filter} ${state.search}&sort=created&${state.order}`
       );
-      const data = await res.json();
 
-      const issueData = data.items.map((issue) => {
+      const data = await res.json();
+      const issueData = data.items.map((issue: any) => {
         const repository = issue.repository_url.split("/").at(-1);
         return {
           repository: repository,
@@ -112,11 +125,40 @@ export function IssueDataContextProvider({
 
       dispatch({ type: "issue/load", payload: issueData });
     },
-    [state.owner]
+
+    [state.owner, state.search, state.filter, state.order]
   );
 
+  const updateSearchKeyWord = useCallback((search: string) => {
+    const searchToUrl = `${search.length === 0 ? "" : `${search} in:body`}`;
+    dispatch({ type: "issue/search", payload: searchToUrl });
+  }, []);
+
+  const updateFilter = useCallback((filter: string[]) => {
+    const filterToUrl = filter
+      .map((filter) => `state:${filter}`)
+      .join("+")
+      .toLocaleLowerCase();
+
+    dispatch({ type: "issue/filter", payload: filterToUrl });
+  }, []);
+
+  const updateOrder = useCallback((order: string) => {
+    const orderToUrl = `order=${order}`;
+    dispatch({ type: "issue/order", payload: orderToUrl });
+  }, []);
+
   return (
-    <IssueDataContext.Provider value={{ state, fetchIssue, fetchUser }}>
+    <IssueDataContext.Provider
+      value={{
+        state,
+        fetchIssue,
+        fetchUser,
+        updateSearchKeyWord,
+        updateFilter,
+        updateOrder,
+      }}
+    >
       {children}
     </IssueDataContext.Provider>
   );

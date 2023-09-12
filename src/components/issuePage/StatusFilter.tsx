@@ -1,14 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useIssueData } from "../../contexts/IssueDataContext";
 
-const status = ["Open", "In Progress", "Closed"];
+const status = ["Open", "Closed"];
 
 export default function StatusFilter() {
+  const { updateFilter } = useIssueData()!;
+
   const [selectedStatus, setSelectedStatus] = useState<number[]>([]);
   function handleSelectState(id: number) {
     selectedStatus.includes(id)
       ? setSelectedStatus(selectedStatus.filter((status) => status !== id))
       : setSelectedStatus([...selectedStatus, id]);
   }
+
+  useEffect(() => {
+    updateFilter(selectedStatus.map((num) => status[num]));
+  }, [selectedStatus, updateFilter]);
   return (
     <div className="flex gap-2">
       {status.map((status, i) => (
