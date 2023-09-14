@@ -1,5 +1,4 @@
 import { useModal } from "../../contexts/ModalContext";
-import DeleteIcon from "../../icons/DeleteIcon";
 import EditIcon from "../../icons/EditIcon";
 import StatusOption from "./StatusOption";
 import { IssueType } from "../../modules/IssueType";
@@ -45,7 +44,6 @@ export default function IssueCard(props: IssueCard) {
         {props.issueData.content}
       </p>
       <div className="absolute top-3 right-3">
-        <DeleteIcon className="cursor-pointer" width="25px" height="25px" />
         <EditIcon
           className="cursor-pointer"
           width="25px"

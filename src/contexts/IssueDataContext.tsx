@@ -35,7 +35,7 @@ const initialState = {
 
 type ContextType = {
   state: state;
-  fetchIssue: () => Promise<void>;
+  fetchIssue: (page: number) => Promise<void>;
   fetchUser: (code: string) => Promise<void>;
   updateSearchKeyWord: (search: string) => void;
   updateFilter: (filter: string[]) => void;
@@ -101,12 +101,14 @@ export function IssueDataContextProvider({
   }, []);
 
   const fetchIssue = useCallback(
-    async function () {
+    async function (page: number) {
       const owner = localStorage.getItem("owner");
       if (!state.owner) dispatch({ type: "user/load", payload: owner! });
 
       const res = await fetch(
-        `https://api.github.com/search/issues?q=owner:${owner} ${state.filter} ${state.search}&sort=created&${state.order}`
+        `https://api.github.com/search/issues?q=owner:${owner} ${
+          state.filter
+        } ${state.search}&sort=created&per_page=${page * 30}&${state.order}`
       );
 
       const data = await res.json();
