@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useReducer } from "react";
+import { IssueType } from "../modules/IssueType";
 
 type action = {
   type: string;
@@ -14,14 +15,6 @@ type state = {
   issue: IssueType[];
 };
 
-type IssueType = {
-  repository: string;
-  content: string;
-  status: string;
-  createdAt: string;
-  title: string;
-};
-
 const initialState = {
   search: "",
   owner: "",
@@ -35,6 +28,7 @@ const initialState = {
       status: "",
       createdAt: "",
       title: "",
+      number: "",
     },
   ],
 };
@@ -46,6 +40,8 @@ type ContextType = {
   updateSearchKeyWord: (search: string) => void;
   updateFilter: (filter: string[]) => void;
   updateOrder: (order: string) => void;
+  createIssue: (issueData: IssueType) => Promise<void>;
+  updateIssue: (issueData: IssueType) => Promise<void>;
 };
 
 const BASE_URL = "http://localhost:8080";
@@ -66,9 +62,17 @@ function reducer(state: state, action: action): state {
       return { ...state, filter: action.payload as string };
     case "issue/order":
       return { ...state, order: action.payload as string };
+    case "issue/create":
+      return { ...state, issue: action.payload as state["issue"] };
     default:
       return state;
   }
+}
+
+async function fetchToken(code: string) {
+  const res = await fetch(`${BASE_URL}/code/${code}`);
+  const data = await res.json();
+  return data;
 }
 
 export function IssueDataContextProvider({
@@ -77,12 +81,6 @@ export function IssueDataContextProvider({
   children: React.ReactNode;
 }) {
   const [state, dispatch] = useReducer(reducer, initialState);
-
-  async function fetchToken(code: string) {
-    const res = await fetch(`${BASE_URL}/code/${code}`);
-    const data = await res.json();
-    return data;
-  }
 
   const fetchUser = useCallback(async function (code: string) {
     const token = await fetchToken(code);
@@ -108,7 +106,7 @@ export function IssueDataContextProvider({
       if (!state.owner) dispatch({ type: "user/load", payload: owner! });
 
       const res = await fetch(
-        `https://api.github.com/search/issues?q=${owner} ${state.filter} ${state.search}&sort=created&${state.order}`
+        `https://api.github.com/search/issues?q=owner:${owner} ${state.filter} ${state.search}&sort=created&${state.order}`
       );
 
       const data = await res.json();
@@ -120,10 +118,12 @@ export function IssueDataContextProvider({
           status: issue.state,
           createdAt: issue.created_at,
           title: issue.title,
+          number: issue.number,
         };
       });
 
       dispatch({ type: "issue/load", payload: issueData });
+      return issueData;
     },
 
     [state.owner, state.search, state.filter, state.order]
@@ -148,6 +148,50 @@ export function IssueDataContextProvider({
     dispatch({ type: "issue/order", payload: orderToUrl });
   }, []);
 
+  const createIssue = useCallback(
+    async (issue: IssueType) => {
+      const owner = localStorage.getItem("owner");
+      const token = localStorage.getItem("token");
+      if (!state.owner) dispatch({ type: "user/load", payload: owner! });
+      await fetch(
+        `https://api.github.com/repos/${owner}/${issue.repository}/issues`,
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            title: issue.title,
+            body: issue.content,
+          }),
+        }
+      );
+    },
+    [state.owner]
+  );
+
+  async function updateIssue(issue: IssueType) {
+    const owner = localStorage.getItem("owner");
+    const token = localStorage.getItem("token");
+
+    await fetch(
+      `https://api.github.com/repos/${owner}/${issue.repository}/issues/${issue.number}`,
+      {
+        method: "PATCH",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: issue.title,
+          body: issue.content,
+          state: issue.status,
+        }),
+      }
+    );
+  }
+
   return (
     <IssueDataContext.Provider
       value={{
@@ -157,6 +201,8 @@ export function IssueDataContextProvider({
         updateSearchKeyWord,
         updateFilter,
         updateOrder,
+        createIssue,
+        updateIssue,
       }}
     >
       {children}
