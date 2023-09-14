@@ -8,7 +8,7 @@ type ContextValueType = {
   handleDefaultIssue(defaultIssue: IssueType): void;
   defaultIssue: IssueType;
   dispatch: React.Dispatch<Action>;
-  state: IssueType;
+  form: IssueType;
   type: "add" | "edit";
   handleType: (type: "edit" | "add") => void;
 };
@@ -52,7 +52,7 @@ const ModalContext = createContext<ContextValueType | null>({
   handleType: () => {},
   defaultIssue: initialState,
   dispatch: () => {},
-  state: initialState,
+  form: initialState,
   type: "edit",
 });
 
@@ -60,7 +60,7 @@ function ModalContextProvider({ children }: { children: React.ReactNode }) {
   const [defaultIssue, setDefaultIssue] = useState(initialState);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [type, setType] = useState<"add" | "edit">("edit");
-  const [state, dispatch] = useReducer(reducer, defaultIssue);
+  const [form, dispatch] = useReducer(reducer, defaultIssue);
 
   function handleOpenModal() {
     setIsModalOpen(true);
@@ -92,7 +92,7 @@ function ModalContextProvider({ children }: { children: React.ReactNode }) {
     handleType,
     defaultIssue,
     dispatch,
-    state,
+    form,
     type,
   };
 
