@@ -28,6 +28,8 @@ export default function IssueDataDisplay() {
     if (String(state.error).length) handleOpenErrorModal();
   }, [handleOpenErrorModal, state.error]);
 
+  if (!state.issue) return <div>Create One!</div>;
+
   return (
     <>
       {state.issue[0].content ? (
