@@ -12,6 +12,7 @@ type state = {
   search: string;
   filter: string;
   order: string;
+  error: string;
   issue: IssueType[];
 };
 
@@ -21,6 +22,7 @@ const initialState = {
   token: "",
   filter: "",
   order: "",
+  error: "",
   issue: [
     {
       repository: "",
@@ -64,15 +66,11 @@ function reducer(state: state, action: action): state {
       return { ...state, order: action.payload as string };
     case "issue/create":
       return { ...state, issue: action.payload as state["issue"] };
+    case "error":
+      return { ...state, error: action.payload as string };
     default:
       return state;
   }
-}
-
-async function fetchToken(code: string) {
-  const res = await fetch(`${BASE_URL}/code/${code}`);
-  const data = await res.json();
-  return data;
 }
 
 export function IssueDataContextProvider({
@@ -82,50 +80,72 @@ export function IssueDataContextProvider({
 }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  async function fetchToken(code: string) {
+    try {
+      const res = await fetch(`${BASE_URL}/code/${code}`);
+      if (!res.ok) throw new Error("Authentication Fails");
+
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.log(err.message);
+    }
+  }
+
   const fetchUser = useCallback(async function (code: string) {
-    const token = await fetchToken(code);
-    const res = await fetch("https://api.github.com/user", {
-      method: "GET",
-      headers: {
-        accept: "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const data = await res.json();
+    try {
+      const token = await fetchToken(code);
+      const res = await fetch("https://api.github.com/user", {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error("Authentication Fails");
+      const data = await res.json();
 
-    localStorage.setItem("owner", data.login);
-    localStorage.setItem("token", token);
+      localStorage.setItem("owner", data.login);
+      localStorage.setItem("token", token);
 
-    dispatch({ type: "token/load", payload: token });
-    dispatch({ type: "user/load", payload: data.login });
+      dispatch({ type: "token/load", payload: token });
+      dispatch({ type: "user/load", payload: data.login });
+    } catch (err) {
+      dispatch({ type: "error", payload: err as string });
+    }
   }, []);
 
   const fetchIssue = useCallback(
     async function (page: number) {
-      const owner = localStorage.getItem("owner");
-      if (!state.owner) dispatch({ type: "user/load", payload: owner! });
+      try {
+        const owner = localStorage.getItem("owner");
+        if (!state.owner) dispatch({ type: "user/load", payload: owner! });
 
-      const res = await fetch(
-        `https://api.github.com/search/issues?q=owner:${owner} ${
-          state.filter
-        } ${state.search}&sort=created&per_page=${page * 30}&${state.order}`
-      );
+        const res = await fetch(
+          `https://api.github.com/search/issues?q=owner:${owner} ${
+            state.filter
+          } ${state.search}&sort=created&per_page=${page * 30}&${state.order}`
+        );
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message);
 
-      const data = await res.json();
-      const issueData = data.items.map((issue: any) => {
-        const repository = issue.repository_url.split("/").at(-1);
-        return {
-          repository: repository,
-          content: issue.body,
-          status: issue.state,
-          createdAt: issue.created_at,
-          title: issue.title,
-          number: issue.number,
-        };
-      });
+        const issueData = data.items.map((issue: any) => {
+          const repository = issue.repository_url.split("/").at(-1);
+          return {
+            repository: repository,
+            content: issue.body,
+            status: issue.state,
+            createdAt: issue.created_at,
+            title: issue.title,
+            number: issue.number,
+          };
+        });
 
-      dispatch({ type: "issue/load", payload: issueData });
-      return issueData;
+        dispatch({ type: "issue/load", payload: issueData });
+        return issueData;
+      } catch (err) {
+        dispatch({ type: "error", payload: err as string });
+      }
     },
 
     [state.owner, state.search, state.filter, state.order]
@@ -152,23 +172,28 @@ export function IssueDataContextProvider({
 
   const createIssue = useCallback(
     async (issue: IssueType) => {
-      const owner = localStorage.getItem("owner");
-      const token = localStorage.getItem("token");
-      if (!state.owner) dispatch({ type: "user/load", payload: owner! });
-      await fetch(
-        `https://api.github.com/repos/${owner}/${issue.repository}/issues`,
-        {
-          method: "POST",
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            title: issue.title,
-            body: issue.content,
-          }),
-        }
-      );
+      try {
+        const owner = localStorage.getItem("owner");
+        const token = localStorage.getItem("token");
+        if (!state.owner) dispatch({ type: "user/load", payload: owner! });
+        const res = await fetch(
+          `https://api.github.com/repos/${owner}/${issue.repository}/issues`,
+          {
+            method: "POST",
+            headers: {
+              accept: "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              title: issue.title,
+              body: issue.content,
+            }),
+          }
+        );
+        if (!res.ok) throw new Error("Creating Issue Fails");
+      } catch (err) {
+        dispatch({ type: "error", payload: err as string });
+      }
     },
     [state.owner]
   );
@@ -177,21 +202,26 @@ export function IssueDataContextProvider({
     const owner = localStorage.getItem("owner");
     const token = localStorage.getItem("token");
 
-    await fetch(
-      `https://api.github.com/repos/${owner}/${issue.repository}/issues/${issue.number}`,
-      {
-        method: "PATCH",
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          title: issue.title,
-          body: issue.content,
-          state: issue.status,
-        }),
-      }
-    );
+    try {
+      const res = await fetch(
+        `https://api.github.com/repos/${owner}/${issue.repository}/issues/${issue.number}`,
+        {
+          method: "PATCH",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            title: issue.title,
+            body: issue.content,
+            state: issue.status,
+          }),
+        }
+      );
+      if (!res.ok) throw new Error("Updating Issue Failss");
+    } catch (err) {
+      dispatch({ type: "error", payload: err as string });
+    }
   }
 
   return (

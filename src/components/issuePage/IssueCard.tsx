@@ -22,7 +22,7 @@ function formatTime(time: string) {
 }
 
 export default function IssueCard(props: IssueCard) {
-  const { handleOpenModal, handleDefaultIssue, handleType } = useModal()!;
+  const { handleOpenEditModal, handleDefaultIssue, handleType } = useModal()!;
   const { updateIssue } = useIssueData()!;
 
   return (
@@ -49,7 +49,7 @@ export default function IssueCard(props: IssueCard) {
           width="25px"
           height="20px"
           onClick={() => {
-            handleOpenModal();
+            handleOpenEditModal();
             handleDefaultIssue(props.issueData);
             handleType("edit");
           }}

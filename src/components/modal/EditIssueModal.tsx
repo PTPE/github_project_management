@@ -5,7 +5,14 @@ import StatusOption from "../issuePage/StatusOption";
 import { useIssueData } from "../../contexts/IssueDataContext";
 
 export default function EditIssueModal() {
-  const { handleCloseModal, defaultIssue, dispatch, form, type } = useModal()!;
+  const {
+    handleCloseErrorModal,
+    handleCloseEditModal,
+    defaultIssue,
+    dispatch,
+    form,
+    type,
+  } = useModal()!;
   const { createIssue, updateIssue } = useIssueData()!;
 
   const isDisabled =
@@ -16,7 +23,10 @@ export default function EditIssueModal() {
   return (
     <Modal>
       <form className="flex flex-col p-10 gap-3">
-        <Exit className="self-end cursor-pointer" />
+        <Exit
+          className="self-end cursor-pointer"
+          onClick={handleCloseEditModal}
+        />
         <label>
           Title <span className="text-red-600 text-xs">*必填</span>
         </label>
@@ -71,7 +81,7 @@ export default function EditIssueModal() {
             e.preventDefault();
             if (type === "add") createIssue(form);
             if (type === "edit") updateIssue(form);
-            handleCloseModal();
+            handleCloseErrorModal();
           }}
           disabled={isDisabled}
         >

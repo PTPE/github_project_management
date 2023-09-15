@@ -1,13 +1,16 @@
-import { useModal } from "../contexts/ModalContext";
 import AddNewIssue from "../components/issuePage/AddNewIssue";
 import DecendenceFilter from "../components/issuePage/DecendenceFilter";
 import IssueDataDisplay from "../components/issuePage/IssueDataDisplay";
 import SearchBar from "../components/issuePage/SearchBar";
 import StatusFilter from "../components/issuePage/StatusFilter";
 import EditIssueModal from "../components/modal/EditIssueModal";
+import ErrorModal from "../components/modal/ErrorModal";
+import { useIssueData } from "../contexts/IssueDataContext";
+import { useModal } from "../contexts/ModalContext";
 export default function Issue() {
-  const { isModalOpen } = useModal()!;
   const owner = localStorage.getItem("owner");
+  const { state } = useIssueData()!;
+  const { isEditModalOpen, isErrorModalOpen } = useModal()!;
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-slate-200 p-6 items-center gap-2">
@@ -19,7 +22,8 @@ export default function Issue() {
         <DecendenceFilter />
       </div>
       <IssueDataDisplay />
-      {isModalOpen && <EditIssueModal />}
+      {isEditModalOpen && <EditIssueModal />}
+      {isErrorModalOpen && <ErrorModal errorMessage={state.error} />}
     </div>
   );
 }

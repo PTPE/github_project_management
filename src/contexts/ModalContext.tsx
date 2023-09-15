@@ -1,10 +1,19 @@
-import { createContext, useContext, useReducer, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useReducer,
+  useState,
+} from "react";
 import { IssueType } from "../modules/IssueType";
 
 type ContextValueType = {
-  isModalOpen: boolean;
-  handleOpenModal: () => void;
-  handleCloseModal: () => void;
+  isEditModalOpen: boolean;
+  isErrorModalOpen: boolean;
+  handleOpenEditModal: () => void;
+  handleCloseEditModal: () => void;
+  handleOpenErrorModal: () => void;
+  handleCloseErrorModal: () => void;
   handleDefaultIssue(defaultIssue: IssueType): void;
   defaultIssue: IssueType;
   dispatch: React.Dispatch<Action>;
@@ -45,9 +54,12 @@ function reducer(state: IssueType, action: Action) {
 }
 
 const ModalContext = createContext<ContextValueType | null>({
-  isModalOpen: false,
-  handleOpenModal: () => {},
-  handleCloseModal: () => {},
+  isErrorModalOpen: false,
+  isEditModalOpen: false,
+  handleOpenEditModal: () => {},
+  handleCloseEditModal: () => {},
+  handleOpenErrorModal: () => {},
+  handleCloseErrorModal: () => {},
   handleDefaultIssue: () => {},
   handleType: () => {},
   defaultIssue: initialState,
@@ -58,16 +70,25 @@ const ModalContext = createContext<ContextValueType | null>({
 
 function ModalContextProvider({ children }: { children: React.ReactNode }) {
   const [defaultIssue, setDefaultIssue] = useState(initialState);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [type, setType] = useState<"add" | "edit">("edit");
   const [form, dispatch] = useReducer(reducer, defaultIssue);
 
-  function handleOpenModal() {
-    setIsModalOpen(true);
+  function handleOpenEditModal() {
+    setIsEditModalOpen(true);
   }
 
-  function handleCloseModal() {
-    setIsModalOpen(false);
+  function handleCloseEditModal() {
+    setIsEditModalOpen(false);
+  }
+
+  const handleOpenErrorModal = useCallback(function () {
+    setIsErrorModalOpen(true);
+  }, []);
+
+  function handleCloseErrorModal() {
+    setIsErrorModalOpen(false);
   }
 
   function handleType(type: "edit" | "add") {
@@ -85,9 +106,12 @@ function ModalContextProvider({ children }: { children: React.ReactNode }) {
   }
 
   const contextValue = {
-    isModalOpen,
-    handleOpenModal,
-    handleCloseModal,
+    isEditModalOpen,
+    isErrorModalOpen,
+    handleOpenEditModal,
+    handleCloseEditModal,
+    handleOpenErrorModal,
+    handleCloseErrorModal,
     handleDefaultIssue,
     handleType,
     defaultIssue,
