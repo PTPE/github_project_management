@@ -25,20 +25,20 @@ export default function IssueDataDisplay() {
   }, [fetchIssue, page]);
 
   useEffect(() => {
-    if (String(state.error).length) handleOpenErrorModal();
+    if (state.error) handleOpenErrorModal();
   }, [handleOpenErrorModal, state.error]);
 
   if (!state.issue) return <div>Create One!</div>;
 
   return (
-    <>
-      {state.issue[0].content ? (
+    <div className="flex flex-col gap-y-6 items-center">
+      {state ? (
         state.issue.map((issue) => (
           <IssueCard key={issue.createdAt} issueData={issue} />
         ))
       ) : (
         <Spinner className="border-green" />
       )}
-    </>
+    </div>
   );
 }

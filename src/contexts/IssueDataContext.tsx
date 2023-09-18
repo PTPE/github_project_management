@@ -23,16 +23,7 @@ const initialState = {
   filter: "",
   order: "",
   error: "",
-  issue: [
-    {
-      repository: "",
-      content: "",
-      status: "",
-      createdAt: "",
-      title: "",
-      number: "",
-    },
-  ],
+  issue: [],
 };
 
 type ContextType = {

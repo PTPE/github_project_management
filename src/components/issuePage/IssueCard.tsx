@@ -24,7 +24,7 @@ export default function IssueCard(props: IssueCard) {
   const { updateIssue } = useIssueData()!;
 
   return (
-    <div className="lg:w-[60%] md:w-[80%] h-40 bg-white rounded-xl shadow-md p-5 flex  gap-5 items-center relative">
+    <div className="lg:w-[60%] md:w-[80%] h-40 bg-white rounded-xl shadow-md p-5 flex gap-5 items-center relative">
       <div className="flex gap-2 flex-col items-center w-1/4">
         <StatusOption
           defaultValue={props.issueData.status}

@@ -22,12 +22,8 @@ export default function Redirect() {
   }, [code, fetchUser, navigate]);
 
   useEffect(() => {
-    if (String(state.error).length) handleOpenErrorModal();
+    if (state.error) handleOpenErrorModal();
   }, [state.error, handleOpenErrorModal]);
-
-  // useEffect(() => {
-  //   if (state.owner && state.token) navigate("/issue");
-  // }, [state, navigate]);
 
   return (
     <div className="flex items-center justify-center h-screen bg-slate-200">
