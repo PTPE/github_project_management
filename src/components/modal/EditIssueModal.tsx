@@ -13,7 +13,7 @@ export default function EditIssueModal() {
     form,
     type,
   } = useModal()!;
-  const { createIssue, updateIssue } = useIssueData()!;
+  const { createIssue, updateIssue, state } = useIssueData()!;
 
   const isDisabled =
     form.title.length === 0 ||
@@ -50,8 +50,8 @@ export default function EditIssueModal() {
         <label>
           Repository <span className="text-red-600 text-xs">*必填</span>
         </label>
-        <textarea
-          className={`border-transparent border-2 outline-green rounded-lg h-[40px] p-[5px] bg-gray-200 ${
+        <select
+          className={`border-transparent border-2 outline-green rounded-lg h-[40px] p-[5px] bg-gray-200 text-center ${
             type === "edit" ? "text-zinc-500 cursor-not-allowed" : ""
           }`}
           defaultValue={defaultIssue.repository}
@@ -59,7 +59,11 @@ export default function EditIssueModal() {
             dispatch({ type: "form/repository", payload: e.target.value })
           }
           disabled={type === "edit"}
-        />
+        >
+          {state.repositoryList.map((repository) => (
+            <option key={repository}>{repository}</option>
+          ))}
+        </select>
         <label>
           Content <span className="text-red-600 text-xs">*至少30字</span>
         </label>

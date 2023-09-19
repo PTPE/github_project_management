@@ -5,7 +5,7 @@ import Spinner from "../../icons/Spinner";
 import { useModal } from "../../contexts/ModalContext";
 
 export default function IssueDataDisplay() {
-  const { state, fetchIssue } = useIssueData()!;
+  const { state, fetchIssue, fetchRepositoryList } = useIssueData()!;
   const { handleOpenErrorModal } = useModal()!;
   const [page, setPage] = useState(1);
 
@@ -19,6 +19,10 @@ export default function IssueDataDisplay() {
       }, 1000);
     }
   });
+
+  useEffect(() => {
+    fetchRepositoryList();
+  }, [fetchRepositoryList]);
 
   useEffect(() => {
     fetchIssue(page);

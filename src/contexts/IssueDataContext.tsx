@@ -3,7 +3,7 @@ import { IssueType } from "../modules/IssueType";
 
 type action = {
   type: string;
-  payload: string | state["issue"];
+  payload: string | state["issue"] | string[];
 };
 
 type state = {
@@ -14,6 +14,7 @@ type state = {
   order: string;
   error: string;
   issue: IssueType[];
+  repositoryList: string[];
 };
 
 const initialState = {
@@ -24,6 +25,7 @@ const initialState = {
   order: "",
   error: "",
   issue: [],
+  repositoryList: [],
 };
 
 type ContextType = {
@@ -35,6 +37,7 @@ type ContextType = {
   updateOrder: (order: string) => void;
   createIssue: (issueData: IssueType) => Promise<void>;
   updateIssue: (issueData: IssueType) => Promise<void>;
+  fetchRepositoryList: () => Promise<void>;
 };
 
 const BASE_URL = "http://localhost:8080";
@@ -47,6 +50,8 @@ function reducer(state: state, action: action): state {
       return { ...state, token: action.payload as string };
     case "user/load":
       return { ...state, owner: action.payload as string };
+    case "repositoryList/load":
+      return { ...state, repositoryList: action.payload as string[] };
     case "issue/load":
       return { ...state, issue: action.payload as state["issue"] };
     case "issue/search":
@@ -78,7 +83,7 @@ export function IssueDataContextProvider({
 
       const data = await res.json();
       return data;
-    } catch (err) {
+    } catch (err: unknown) {
       console.log(err.message);
     }
   }
@@ -98,6 +103,8 @@ export function IssueDataContextProvider({
 
       localStorage.setItem("owner", data.login);
       localStorage.setItem("token", token);
+
+      dispatch({ type: "repositoryList/load", payload: ["a"] });
 
       dispatch({ type: "token/load", payload: token });
       dispatch({ type: "user/load", payload: data.login });
@@ -141,6 +148,16 @@ export function IssueDataContextProvider({
 
     [state.owner, state.search, state.filter, state.order]
   );
+
+  const fetchRepositoryList = useCallback(async () => {
+    const owner = localStorage.getItem("owner");
+
+    const res = await fetch(`https://api.github.com/users/${owner}/repos`);
+    const data = await res.json();
+    const repositoryList = data.map((data) => data.name);
+
+    dispatch({ type: "repositoryList/load", payload: repositoryList });
+  }, []);
 
   const updateSearchKeyWord = useCallback((search: string) => {
     const searchToUrl = `${search.length === 0 ? "" : `${search} in:body`}`;
@@ -226,6 +243,7 @@ export function IssueDataContextProvider({
         updateOrder,
         createIssue,
         updateIssue,
+        fetchRepositoryList,
       }}
     >
       {children}
