@@ -3,10 +3,10 @@ import { useIssueData } from "../../contexts/IssueDataContext";
 export default function DecendenceFilter() {
   const { updateOrder } = useIssueData()!;
   return (
-    <div className="h-full">
+    <div className=" sm:text-sm md:text-base">
       <label>排序：</label>
       <select
-        className="h-full rounded-lg"
+        className="rounded-lg py-2 outline-none"
         onChange={(e) => updateOrder(e.target.value)}
       >
         <option value="desc">由新到舊</option>

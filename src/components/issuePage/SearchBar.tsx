@@ -9,13 +9,13 @@ export default function SearchBar() {
   }
 
   return (
-    <div className="flex h-10 w-full items-center justify-center">
+    <div className="flex w-full items-center justify-center sm:h-8 md:h-10">
       <input
-        className="border-transparent  focus:outline-green w-[40%] mr-5 drop-shadow-md rounded-lg  h-full pl-2"
+        className="border-2 border-transparent focus:outline-none focus:border-green mr-5 drop-shadow-md rounded-lg h-full pl-2 sm:w-[60%] md:w-[40%]"
         ref={searchRef}
       />
       <button
-        className="px-4 text-white rounded-lg bg-green h-full"
+        className="px-4 text-white rounded-lg bg-green h-full sm:text-sm md:text-xl"
         onClick={handleSubmit}
       >
         搜尋

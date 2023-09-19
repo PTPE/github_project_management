@@ -9,6 +9,11 @@ export default {
       colors: {
         green: "#0E8388",
       },
+      screens: {
+        sm: "320px",
+        md: "768px",
+        lg: "1170px",
+      },
     },
   },
   plugins: [],

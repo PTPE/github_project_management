@@ -1,5 +1,5 @@
 import AddNewIssue from "../components/issuePage/AddNewIssue";
-import DecendenceFilter from "../components/issuePage/DecendenceFilter";
+import DecendenceFilter from "../components/issuePage/OrderFilter";
 import Header from "../components/issuePage/Header";
 import IssueDataDisplay from "../components/issuePage/IssueDataDisplay";
 import SearchBar from "../components/issuePage/SearchBar";
@@ -13,13 +13,15 @@ export default function Issue() {
   const { isEditModalOpen, isErrorModalOpen } = useModal()!;
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-slate-200 p-x-6 items-center gap-2">
+    <div className="flex flex-col w-full min-h-screen bg-slate-200 items-center gap-2">
       <Header />
       <SearchBar />
-      <div className="flex items-center justify-between lg:w-[60%] lg:self-center md:w-[80%] md:self-center w-[90%] self-stretch mt-4 relative">
-        <AddNewIssue />
+      <div className="flex flex-wrap items-center self-end mt-4 relative gap-3 sm:px-8 md:flex-row md:px-16">
         <StatusFilter />
-        <DecendenceFilter />
+        <div className="flex gap-3">
+          <DecendenceFilter />
+          <AddNewIssue />
+        </div>
       </div>
       <IssueDataDisplay />
       {isEditModalOpen && <EditIssueModal />}

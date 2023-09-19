@@ -17,10 +17,11 @@ export default function StatusFilter() {
     updateFilter(selectedStatus.map((num) => status[num]));
   }, [selectedStatus, updateFilter]);
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 items-center sm:text-sm md:text-base">
+      篩選：
       {status.map((status, i) => (
         <div
-          className={`px-2 py-1  cursor-pointer rounded-lg ${
+          className={`px-2 py-1 cursor-pointer rounded-lg ${
             selectedStatus.includes(i)
               ? " bg-green text-white border-2 border-green"
               : " bg-white border-green border-2 text-green "

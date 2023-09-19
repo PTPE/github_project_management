@@ -31,7 +31,7 @@ export default function IssueDataDisplay() {
   if (!state.issue) return <div>Create One!</div>;
 
   return (
-    <div className="flex flex-col gap-y-6 items-center">
+    <div className="grid gap-16 pb-16 sm:grid-cols-1 sm:gap-5 sm:px-8  md:grid-cols-2 md:gap-16 md:px-16  lg:grid-cols-3 ">
       {state ? (
         state.issue.map((issue) => (
           <IssueCard key={issue.createdAt} issueData={issue} />

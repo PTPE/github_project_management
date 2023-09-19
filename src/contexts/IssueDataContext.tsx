@@ -115,7 +115,7 @@ export function IssueDataContextProvider({
         const res = await fetch(
           `https://api.github.com/search/issues?q=owner:${owner} ${
             state.filter
-          } ${state.search}&sort=created&per_page=${page * 30}&${state.order}`
+          } ${state.search}&sort=created&per_page=${30}&${state.order}`
         );
         const data = await res.json();
         if (!res.ok) throw new Error(data.message);
