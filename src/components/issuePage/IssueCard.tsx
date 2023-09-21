@@ -1,6 +1,6 @@
 import { useModal } from "../../contexts/ModalContext";
 import EditIcon from "../../icons/EditIcon";
-import StatusOption from "./StatusOption";
+import StatusToggle from "./StatusToggle";
 import { IssueType } from "../../modules/IssueType";
 import { useIssueData } from "../../contexts/IssueDataContext";
 import TimeAgo from "javascript-time-ago";
@@ -21,24 +21,26 @@ function formatTimeAgo(time: string) {
 
 export default function IssueCard(props: IssueCard) {
   const { handleOpenEditModal, handleDefaultIssue, handleType } = useModal()!;
+  const [status, setStatus] = useState(props.issueData.status);
   const { updateIssue } = useIssueData()!;
-  const [status, setStatue] = useState(props.issueData.status);
+
+  function handleUpdateIssue(newStatus: string) {
+    updateIssue({ ...props.issueData, status: newStatus });
+  }
 
   return (
     <div
-      className={`bg-white rounded-xl shadow-md p-5 flex flex-col gap-5 relative border-l-4 ${
-        status === "open" ? "border-cyan-600" : "border-rose-400"
-      }`}
+      className={`bg-white rounded-xl shadow-md p-5 flex flex-col gap-5 relative border-l-4 
+      ${status === "open" ? "border-cyan-600" : "border-rose-400"}
+      `}
     >
-      <div className="">
+      <div>
         <div className="flex gap-2 items-center">
-          <StatusOption
+          <StatusToggle
             defaultValue={props.issueData.status}
-            className={`text-xs border border-green text-green`}
-            onChange={(e) => {
-              setStatue(e.target.value);
-              updateIssue({ ...props.issueData, status: e.target.value });
-            }}
+            handleStatus={setStatus}
+            status={status}
+            updateIssue={handleUpdateIssue}
           />
           ·
           <span className="text-gray-400 text-xs">

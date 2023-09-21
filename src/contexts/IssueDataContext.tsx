@@ -3,13 +3,14 @@ import { IssueType } from "../modules/IssueType";
 
 type action = {
   type: string;
-  payload: string | state["issue"] | string[];
+  payload?: string | state["issue"] | string[];
 };
 
 type state = {
   owner: string;
   token: string;
   search: string;
+  isLoading: boolean;
   filter: string;
   order: string;
   error: string;
@@ -24,6 +25,7 @@ const initialState = {
   filter: "",
   order: "",
   error: "",
+  isLoading: false,
   issue: [],
   repositoryList: [],
 };
@@ -46,14 +48,23 @@ const IssueDataContext = createContext<ContextType | null>(null);
 
 function reducer(state: state, action: action): state {
   switch (action.type) {
+    case "loading":
+      return { ...state, isLoading: true };
     case "token/load":
-      return { ...state, token: action.payload as string };
+      return { ...state, token: action.payload as string, isLoading: false };
     case "user/load":
-      return { ...state, owner: action.payload as string };
+      return { ...state, owner: action.payload as string, isLoading: false };
     case "repositoryList/load":
-      return { ...state, repositoryList: action.payload as string[] };
+      return {
+        ...state,
+        repositoryList: action.payload as string[],
+      };
     case "issue/load":
-      return { ...state, issue: action.payload as state["issue"] };
+      return {
+        ...state,
+        issue: action.payload as state["issue"],
+        isLoading: false,
+      };
     case "issue/search":
       return { ...state, search: action.payload as string };
     case "issue/filter":
@@ -77,6 +88,8 @@ export function IssueDataContextProvider({
   const [state, dispatch] = useReducer(reducer, initialState);
 
   async function fetchToken(code: string) {
+    dispatch({ type: "loading" });
+
     try {
       const res = await fetch(`${BASE_URL}/code/${code}`);
       if (!res.ok) throw new Error("Authentication Fails");
@@ -89,6 +102,7 @@ export function IssueDataContextProvider({
   }
 
   const fetchUser = useCallback(async function (code: string) {
+    dispatch({ type: "loading" });
     try {
       const token = await fetchToken(code);
       const res = await fetch("https://api.github.com/user", {
@@ -115,6 +129,8 @@ export function IssueDataContextProvider({
 
   const fetchIssue = useCallback(
     async function (page: number) {
+      dispatch({ type: "loading" });
+
       try {
         const owner = localStorage.getItem("owner");
         if (!state.owner) dispatch({ type: "user/load", payload: owner! });
@@ -207,6 +223,8 @@ export function IssueDataContextProvider({
   );
 
   async function updateIssue(issue: IssueType) {
+    console.log(issue);
+
     const owner = localStorage.getItem("owner");
     const token = localStorage.getItem("token");
 

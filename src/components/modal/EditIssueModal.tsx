@@ -1,7 +1,7 @@
 import { useModal } from "../../contexts/ModalContext";
 import Exit from "./Exit";
 import Modal from "./Modal";
-import StatusOption from "../issuePage/StatusOption";
+import StatusOption from "./StatusOption";
 import { useIssueData } from "../../contexts/IssueDataContext";
 
 export default function EditIssueModal() {
