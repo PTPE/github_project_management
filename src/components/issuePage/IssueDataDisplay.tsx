@@ -1,38 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useIssueData } from "../../contexts/IssueDataContext";
 import IssueCard from "./IssueCard";
 import Spinner from "../../icons/Spinner";
-import { useModal } from "../../contexts/ModalContext";
 
 export default function IssueDataDisplay() {
-  const { state, fetchIssue, fetchRepositoryList } = useIssueData()!;
-  const { handleOpenErrorModal } = useModal()!;
-  const [page, setPage] = useState(1);
-
-  document.addEventListener("scroll", () => {
-    const scrollableHeight =
-      document.documentElement.scrollHeight - window.innerHeight;
-
-    if (window.scrollY > 1000 && window.scrollY >= scrollableHeight) {
-      setTimeout(() => {
-        setPage(page + 1);
-      }, 1000);
-    }
-  });
+  const { state, fetchIssue } = useIssueData()!;
 
   useEffect(() => {
-    fetchRepositoryList();
-  }, [fetchRepositoryList]);
-
-  useEffect(() => {
-    fetchIssue(page);
-  }, [fetchIssue, page]);
-
-  useEffect(() => {
-    if (state.error) handleOpenErrorModal();
-  }, [handleOpenErrorModal, state.error]);
+    fetchIssue();
+  }, [fetchIssue]);
 
   if (state.isLoading) return <Spinner className="border-green" />;
+
+  if (state.error)
+    return <div>There's an error. Please wait and reload again.</div>;
 
   if (!state.issue) return <div>Create One!</div>;
 

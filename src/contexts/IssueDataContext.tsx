@@ -3,10 +3,12 @@ import { IssueType } from "../modules/IssueType";
 
 type action = {
   type: string;
-  payload?: string | state["issue"] | string[];
+  payload?: string | state["issue"] | string[] | number;
 };
 
 type state = {
+  currentPage: number;
+  totalPage: number;
   owner: string;
   token: string;
   search: string;
@@ -25,6 +27,8 @@ const initialState = {
   filter: "",
   order: "",
   error: "",
+  totalPage: 1,
+  currentPage: 1,
   isLoading: false,
   issue: [],
   repositoryList: [],
@@ -32,7 +36,7 @@ const initialState = {
 
 type ContextType = {
   state: state;
-  fetchIssue: (page: number) => Promise<void>;
+  fetchIssue: () => Promise<void>;
   fetchUser: (code: string) => Promise<void>;
   updateSearchKeyWord: (search: string) => void;
   updateFilter: (filter: string[]) => void;
@@ -40,6 +44,7 @@ type ContextType = {
   createIssue: (issueData: IssueType) => Promise<void>;
   updateIssue: (issueData: IssueType) => Promise<void>;
   fetchRepositoryList: () => Promise<void>;
+  updateCurrentPage: (page: number) => void;
 };
 
 const BASE_URL = "http://localhost:8080";
@@ -59,6 +64,8 @@ function reducer(state: state, action: action): state {
         ...state,
         repositoryList: action.payload as string[],
       };
+    case "totalPage/load":
+      return { ...state, totalPage: action.payload as number };
     case "issue/load":
       return {
         ...state,
@@ -71,6 +78,8 @@ function reducer(state: state, action: action): state {
       return { ...state, filter: action.payload as string };
     case "issue/order":
       return { ...state, order: action.payload as string };
+    case "issue/currentPage":
+      return { ...state, currentPage: action.payload as number };
     case "issue/create":
       return { ...state, issue: action.payload as state["issue"] };
     case "error":
@@ -118,8 +127,6 @@ export function IssueDataContextProvider({
       localStorage.setItem("owner", data.login);
       localStorage.setItem("token", token);
 
-      dispatch({ type: "repositoryList/load", payload: ["a"] });
-
       dispatch({ type: "token/load", payload: token });
       dispatch({ type: "user/load", payload: data.login });
     } catch (err) {
@@ -128,7 +135,7 @@ export function IssueDataContextProvider({
   }, []);
 
   const fetchIssue = useCallback(
-    async function (page: number) {
+    async function () {
       dispatch({ type: "loading" });
 
       try {
@@ -136,9 +143,7 @@ export function IssueDataContextProvider({
         if (!state.owner) dispatch({ type: "user/load", payload: owner! });
 
         const res = await fetch(
-          `https://api.github.com/search/issues?q=owner:${owner} ${
-            state.filter
-          } ${state.search}&sort=created&per_page=${30}&${state.order}`
+          `https://api.github.com/search/issues?q=owner:${owner} ${state.filter} ${state.search}&sort=created&per_page=12&page=${state.currentPage}&${state.order}`
         );
         const data = await res.json();
         if (!res.ok) throw new Error(data.message);
@@ -155,6 +160,12 @@ export function IssueDataContextProvider({
           };
         });
 
+        const totalPage = Math.ceil(data["total_count"] / 12);
+
+        dispatch({
+          type: "totalPage/load",
+          payload: totalPage,
+        });
         dispatch({ type: "issue/load", payload: issueData });
         return issueData;
       } catch (err) {
@@ -162,7 +173,7 @@ export function IssueDataContextProvider({
       }
     },
 
-    [state.owner, state.search, state.filter, state.order]
+    [state.owner, state.search, state.filter, state.order, state.currentPage]
   );
 
   const fetchRepositoryList = useCallback(async () => {
@@ -194,6 +205,10 @@ export function IssueDataContextProvider({
     dispatch({ type: "issue/order", payload: orderToUrl });
   }, []);
 
+  const updateCurrentPage = useCallback((page: number) => {
+    dispatch({ type: "issue/currentPage", payload: page });
+  }, []);
+
   const createIssue = useCallback(
     async (issue: IssueType) => {
       try {
@@ -223,8 +238,6 @@ export function IssueDataContextProvider({
   );
 
   async function updateIssue(issue: IssueType) {
-    console.log(issue);
-
     const owner = localStorage.getItem("owner");
     const token = localStorage.getItem("token");
 
@@ -262,6 +275,7 @@ export function IssueDataContextProvider({
         createIssue,
         updateIssue,
         fetchRepositoryList,
+        updateCurrentPage,
       }}
     >
       {children}

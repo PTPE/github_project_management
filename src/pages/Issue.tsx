@@ -8,9 +8,16 @@ import EditIssueModal from "../components/modal/EditIssueModal";
 import ErrorModal from "../components/modal/ErrorModal";
 import { useIssueData } from "../contexts/IssueDataContext";
 import { useModal } from "../contexts/ModalContext";
+import { useEffect } from "react";
+import Pagination from "../components/issuePage/Pagination";
 export default function Issue() {
   const { state } = useIssueData()!;
-  const { isEditModalOpen, isErrorModalOpen } = useModal()!;
+  const { isEditModalOpen, isErrorModalOpen, handleOpenErrorModal } =
+    useModal()!;
+
+  useEffect(() => {
+    if (state.error) handleOpenErrorModal();
+  }, [handleOpenErrorModal, state.error]);
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-slate-200 items-center gap-2">
@@ -24,6 +31,7 @@ export default function Issue() {
         </div>
       </div>
       <IssueDataDisplay />
+      <Pagination />
       {isEditModalOpen && <EditIssueModal />}
       {isErrorModalOpen && <ErrorModal errorMessage={state.error} />}
     </div>

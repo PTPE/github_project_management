@@ -3,6 +3,7 @@ import Exit from "./Exit";
 import Modal from "./Modal";
 import StatusOption from "./StatusOption";
 import { useIssueData } from "../../contexts/IssueDataContext";
+import { useEffect } from "react";
 
 export default function EditIssueModal() {
   const {
@@ -13,7 +14,12 @@ export default function EditIssueModal() {
     form,
     type,
   } = useModal()!;
-  const { createIssue, updateIssue, state } = useIssueData()!;
+  const { createIssue, updateIssue, state, fetchRepositoryList } =
+    useIssueData()!;
+
+  useEffect(() => {
+    fetchRepositoryList();
+  }, [fetchRepositoryList]);
 
   const isDisabled =
     form.title.length === 0 ||
