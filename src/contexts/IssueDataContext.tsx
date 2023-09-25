@@ -81,7 +81,17 @@ function reducer(state: state, action: action): state {
     case "issue/currentPage":
       return { ...state, currentPage: action.payload as number };
     case "issue/create":
-      return { ...state, issue: action.payload as state["issue"] };
+      return {
+        ...state,
+        issue: action.payload as state["issue"],
+        isLoading: false,
+      };
+    case "issue/update":
+      return {
+        ...state,
+        issue: action.payload as state["issue"],
+        isLoading: false,
+      };
     case "error":
       return { ...state, error: action.payload as string };
     default:
@@ -211,6 +221,8 @@ export function IssueDataContextProvider({
 
   const createIssue = useCallback(
     async (issue: IssueType) => {
+      dispatch({ type: "loading" });
+
       try {
         const owner = localStorage.getItem("owner");
         const token = localStorage.getItem("token");
@@ -230,16 +242,21 @@ export function IssueDataContextProvider({
           }
         );
         if (!res.ok) throw new Error("Creating Issue Fails");
+
+        const updatedIssueList = [issue, ...state.issue];
+
+        dispatch({ type: "issue/create", payload: updatedIssueList });
       } catch (err) {
         dispatch({ type: "error", payload: err as string });
       }
     },
-    [state.owner]
+    [state.owner, state.issue]
   );
 
   async function updateIssue(issue: IssueType) {
     const owner = localStorage.getItem("owner");
     const token = localStorage.getItem("token");
+    dispatch({ type: "loading" });
 
     try {
       const res = await fetch(
@@ -257,7 +274,15 @@ export function IssueDataContextProvider({
           }),
         }
       );
-      if (!res.ok) throw new Error("Updating Issue Failss");
+
+      if (!res.ok) throw new Error("Updating Issue Fails");
+
+      const updatedIssueList = state.issue.map((issueEl) => {
+        if (issueEl.number === issue.number) return issue;
+        else return issueEl;
+      });
+
+      dispatch({ type: "issue/update", payload: updatedIssueList });
     } catch (err) {
       dispatch({ type: "error", payload: err as string });
     }

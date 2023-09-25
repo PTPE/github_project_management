@@ -1,12 +1,14 @@
+import { useIssueData } from "../../contexts/IssueDataContext";
 import { useModal } from "../../contexts/ModalContext";
 
 export default function AddNewIssue() {
+  const { state } = useIssueData()!;
   const { handleOpenEditModal, handleDefaultIssue, handleType } = useModal()!;
   const defaultIssue = {
     title: "",
-    repository: "",
+    repository: state.repositoryList[0],
     content: "",
-    status: "",
+    status: "open",
     createdAt: "",
     number: "",
   };

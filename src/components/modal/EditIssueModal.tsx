@@ -3,19 +3,15 @@ import Exit from "./Exit";
 import Modal from "./Modal";
 import StatusOption from "./StatusOption";
 import { useIssueData } from "../../contexts/IssueDataContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function EditIssueModal() {
-  const {
-    handleCloseErrorModal,
-    handleCloseEditModal,
-    defaultIssue,
-    dispatch,
-    form,
-    type,
-  } = useModal()!;
+  const { handleCloseEditModal, defaultIssue, type } = useModal()!;
+
   const { createIssue, updateIssue, state, fetchRepositoryList } =
     useIssueData()!;
+
+  const [form, setForm] = useState(defaultIssue);
 
   useEffect(() => {
     fetchRepositoryList();
@@ -40,7 +36,9 @@ export default function EditIssueModal() {
           className="border-transparent border-2 outline-green rounded-lg h-[40px] p-[5px] bg-gray-200 "
           defaultValue={defaultIssue.title}
           onChange={(e) =>
-            dispatch({ type: "form/title", payload: e.target.value })
+            setForm((prev) => {
+              return { ...prev, title: e.target.value };
+            })
           }
         />
         <label>Status</label>
@@ -50,7 +48,9 @@ export default function EditIssueModal() {
           }`}
           defaultValue={defaultIssue.status}
           onChange={(e) =>
-            dispatch({ type: "form/status", payload: e.target.value })
+            setForm((prev) => {
+              return { ...prev, status: e.target.value };
+            })
           }
         />
         <label>
@@ -62,7 +62,9 @@ export default function EditIssueModal() {
           }`}
           defaultValue={defaultIssue.repository}
           onChange={(e) =>
-            dispatch({ type: "form/repository", payload: e.target.value })
+            setForm((prev) => {
+              return { ...prev, status: e.target.value };
+            })
           }
           disabled={type === "edit"}
         >
@@ -77,7 +79,9 @@ export default function EditIssueModal() {
           className="border-transparent border-2 outline-green rounded-lg  bg-gray-200 h-[120px] p-[5px]"
           defaultValue={defaultIssue.content}
           onChange={(e) =>
-            dispatch({ type: "form/content", payload: e.target.value })
+            setForm((prev) => {
+              return { ...prev, content: e.target.value };
+            })
           }
         />
         <button
@@ -89,9 +93,10 @@ export default function EditIssueModal() {
           }`}
           onClick={(e) => {
             e.preventDefault();
+
             if (type === "add") createIssue(form);
             if (type === "edit") updateIssue(form);
-            handleCloseErrorModal();
+            handleCloseEditModal();
           }}
           disabled={isDisabled}
         >
