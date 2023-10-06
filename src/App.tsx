@@ -9,7 +9,7 @@ function App() {
   return (
     <IssueDataContextProvider>
       <ModalContextProvider>
-        <BrowserRouter>
+        <BrowserRouter basename="/github_project_management">
           <Routes>
             <Route path="home" element={<Home />} />
             <Route path="redirect" element={<Redirect />} />
