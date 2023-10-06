@@ -9,8 +9,6 @@ type action = {
 type state = {
   currentPage: number;
   totalPage: number;
-  owner: string;
-  token: string;
   search: string;
   isLoading: boolean;
   filter: string;
@@ -22,8 +20,6 @@ type state = {
 
 const initialState = {
   search: "",
-  owner: "",
-  token: "",
   filter: "",
   order: "",
   error: "",
@@ -45,6 +41,7 @@ type ContextType = {
   updateIssue: (issueData: IssueType) => Promise<void>;
   fetchRepositoryList: () => Promise<void>;
   updateCurrentPage: (page: number) => void;
+  logout: () => void;
 };
 
 const BASE_URL = "http://localhost:8080";
@@ -55,10 +52,7 @@ function reducer(state: state, action: action): state {
   switch (action.type) {
     case "loading":
       return { ...state, isLoading: true };
-    case "token/load":
-      return { ...state, token: action.payload as string, isLoading: false };
-    case "user/load":
-      return { ...state, owner: action.payload as string, isLoading: false };
+
     case "repositoryList/load":
       return {
         ...state,
@@ -92,6 +86,8 @@ function reducer(state: state, action: action): state {
         issue: action.payload as state["issue"],
         isLoading: false,
       };
+    case "logout":
+      return initialState;
     case "error":
       return { ...state, error: action.payload as string };
     default:
@@ -111,12 +107,17 @@ export function IssueDataContextProvider({
 
     try {
       const res = await fetch(`${BASE_URL}/code/${code}`);
+      console.log("res", res);
+      console.log("url", `${BASE_URL}/code/${code}`);
+
       if (!res.ok) throw new Error("Authentication Fails");
 
       const data = await res.json();
+      console.log("data", data);
+
       return data;
     } catch (err: unknown) {
-      console.log(err.message);
+      console.log(err);
     }
   }
 
@@ -136,9 +137,6 @@ export function IssueDataContextProvider({
 
       localStorage.setItem("owner", data.login);
       localStorage.setItem("token", token);
-
-      dispatch({ type: "token/load", payload: token });
-      dispatch({ type: "user/load", payload: data.login });
     } catch (err) {
       dispatch({ type: "error", payload: err as string });
     }
@@ -150,7 +148,6 @@ export function IssueDataContextProvider({
 
       try {
         const owner = localStorage.getItem("owner");
-        if (!state.owner) dispatch({ type: "user/load", payload: owner! });
 
         const res = await fetch(
           `https://api.github.com/search/issues?q=owner:${owner} ${state.filter} ${state.search}&sort=created&per_page=12&page=${state.currentPage}&${state.order}`
@@ -183,7 +180,7 @@ export function IssueDataContextProvider({
       }
     },
 
-    [state.owner, state.search, state.filter, state.order, state.currentPage]
+    [state.search, state.filter, state.order, state.currentPage]
   );
 
   const fetchRepositoryList = useCallback(async () => {
@@ -191,7 +188,7 @@ export function IssueDataContextProvider({
 
     const res = await fetch(`https://api.github.com/users/${owner}/repos`);
     const data = await res.json();
-    const repositoryList = data.map((data) => data.name);
+    const repositoryList = data.map((data: any) => data.name);
 
     dispatch({ type: "repositoryList/load", payload: repositoryList });
   }, []);
@@ -226,7 +223,7 @@ export function IssueDataContextProvider({
       try {
         const owner = localStorage.getItem("owner");
         const token = localStorage.getItem("token");
-        if (!state.owner) dispatch({ type: "user/load", payload: owner! });
+
         const res = await fetch(
           `https://api.github.com/repos/${owner}/${issue.repository}/issues`,
           {
@@ -250,7 +247,7 @@ export function IssueDataContextProvider({
         dispatch({ type: "error", payload: err as string });
       }
     },
-    [state.owner, state.issue]
+    [state.issue]
   );
 
   async function updateIssue(issue: IssueType) {
@@ -287,6 +284,10 @@ export function IssueDataContextProvider({
       dispatch({ type: "error", payload: err as string });
     }
   }
+  function logout() {
+    localStorage.clear();
+    dispatch({ type: "logout" });
+  }
 
   return (
     <IssueDataContext.Provider
@@ -301,6 +302,7 @@ export function IssueDataContextProvider({
         updateIssue,
         fetchRepositoryList,
         updateCurrentPage,
+        logout,
       }}
     >
       {children}
