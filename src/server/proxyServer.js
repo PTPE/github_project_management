@@ -1,19 +1,22 @@
 import express from "express";
 import cors from "cors";
+import { configDotenv } from "dotenv";
+
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 const app = express();
 app.use(cors());
+configDotenv();
 
 const PORT = 8080;
-const CLIENT_ID = "bf969790d4256f86647c";
-const CLIENT_SECRET = "27743a3ff77d2e99804c0f3a78bee31f5dc4440c";
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
 
 async function fetchToken(code) {
   try {
     const res = await fetch(
-      `https://github.com/login/oauth/access_token?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&code=${code}&redirect_uri=http://localhost:3000/redirect`,
+      `https://github.com/login/oauth/access_token?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&code=${code}`,
       {
         method: "POST",
         headers: {
@@ -29,18 +32,6 @@ async function fetchToken(code) {
     console.error(err);
   }
 }
-
-// async function fetchUser(token) {
-//   const res = await fetch(`https://api.github.com/user`, {
-//     method: "GET",
-//     headers: {
-//       accept: "application/json",
-//       Authorization: `Bearer ${token}`,
-//     },
-//   });
-//   const data = await res.json();
-//   return data;
-// }
 
 app.get("/code/:dynamic", async (req, res) => {
   const code = req.params.dynamic;

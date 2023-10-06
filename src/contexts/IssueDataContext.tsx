@@ -107,13 +107,10 @@ export function IssueDataContextProvider({
 
     try {
       const res = await fetch(`${BASE_URL}/code/${code}`);
-      console.log("res", res);
-      console.log("url", `${BASE_URL}/code/${code}`);
 
       if (!res.ok) throw new Error("Authentication Fails");
 
       const data = await res.json();
-      console.log("data", data);
 
       return data;
     } catch (err: unknown) {

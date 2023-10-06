@@ -6,7 +6,9 @@ export default function Home() {
       </h1>
       <a
         className="bg-green text-white px-10 py-4  text-3xl cursor-pointer relative before:absolute before:top-[-10px] before:left-[-10px] before:border-4 before:border-black before:bg-transparent before:w-[calc(100%_+_2px)] before:h-[calc(100%_+_2px)]"
-        href="https://github.com/login/oauth/authorize?client_id=bf969790d4256f86647c&scope=repo"
+        href={`https://github.com/login/oauth/authorize?client_id=${
+          import.meta.env.VITE_CLIENT_ID
+        }&scope=repo`}
       >
         Login With GitHub
       </a>
