@@ -14,7 +14,7 @@ function App() {
             <Route path="home" element={<Home />} />
             <Route path="redirect" element={<Redirect />} />
             <Route path="issue" element={<Issue />} />
-            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>
         </BrowserRouter>
       </ModalContextProvider>
