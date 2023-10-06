@@ -1,13 +1,10 @@
 import { useNavigate } from "react-router-dom";
+import { useIssueData } from "../../contexts/IssueDataContext";
 
 export default function Header() {
   const navigate = useNavigate();
+  const { logout } = useIssueData()!;
   const owner = localStorage.getItem("owner");
-
-  function handleLogout() {
-    localStorage.clear();
-    navigate("/");
-  }
 
   return (
     <header className="w-full flex justify-between text-white bg-green mb-6 py-4 px-6 items-center">
@@ -18,7 +15,10 @@ export default function Header() {
         </span>
         <button
           className="border px-2 py-1 self-center rounded-lg hover:bg-white hover:text-green transition ease-in-out delay-150 sm:text-sm sm:py-1 md:text-xl"
-          onClick={handleLogout}
+          onClick={() => {
+            logout();
+            navigate("/");
+          }}
         >
           Logout
         </button>
