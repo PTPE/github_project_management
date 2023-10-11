@@ -18,9 +18,7 @@ export default function EditIssueModal() {
   }, [fetchRepositoryList]);
 
   const isDisabled =
-    form.title.length === 0 ||
-    form.repository.length === 0 ||
-    form.content.split("").length < 30;
+    form.title.length === 0 || form.content.split("").length < 30;
 
   return (
     <Modal>
