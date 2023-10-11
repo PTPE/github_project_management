@@ -30,8 +30,10 @@ export default function Issue() {
           <AddNewIssue />
         </div>
       </div>
+
       <IssueDataDisplay />
       <Pagination />
+
       {isEditModalOpen && <EditIssueModal />}
       {isErrorModalOpen && <ErrorModal errorMessage={state.error} />}
     </div>

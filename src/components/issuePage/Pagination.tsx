@@ -42,7 +42,7 @@ export default function Pagination() {
     updateCurrentPage(currentPage);
   }, [updateCurrentPage, currentPage]);
 
-  if (state.isLoading || state.error) return;
+  if (state.isLoading || state.error || state.issue.length === 0) return;
 
   return (
     <div className="flex items-center py-10">
