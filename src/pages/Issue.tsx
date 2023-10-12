@@ -10,14 +10,19 @@ import { useIssueData } from "../contexts/IssueDataContext";
 import { useModal } from "../contexts/ModalContext";
 import { useEffect } from "react";
 import Pagination from "../components/issuePage/Pagination";
+import { useNavigate } from "react-router-dom";
 export default function Issue() {
   const { state } = useIssueData()!;
   const { isEditModalOpen, isErrorModalOpen, handleOpenErrorModal } =
     useModal()!;
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (state.error) handleOpenErrorModal();
   }, [handleOpenErrorModal, state.error]);
+
+  if (!localStorage.getItem("token") || !localStorage.getItem("owner"))
+    navigate("home");
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-slate-200 items-center gap-2">

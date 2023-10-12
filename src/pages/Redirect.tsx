@@ -18,6 +18,7 @@ export default function Redirect() {
       const owner = localStorage.getItem("owner");
       const token = localStorage.getItem("token");
       if (owner && token) navigate("/issue");
+      if (!owner || !token) navigate("/home");
     })();
   }, [code, fetchUser, navigate]);
 
