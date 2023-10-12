@@ -30,7 +30,7 @@ export default function IssueCard(props: IssueCard) {
 
   return (
     <div
-      className={`bg-white rounded-xl shadow-md p-5 flex flex-col gap-5 relative border-l-4 
+      className={`bg-white rounded-xl shadow-md p-5 flex flex-col gap-5 relative border-l-4
       ${status === "open" ? "border-cyan-600" : "border-rose-400"}
       `}
     >

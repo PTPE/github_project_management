@@ -21,7 +21,7 @@ export default function IssueDataDisplay() {
     );
 
   return (
-    <div className="grid gap-16 pb-16 sm:grid-cols-1 sm:gap-5 sm:px-8  md:grid-cols-2 md:gap-16 md:px-16  lg:grid-cols-3 ">
+    <div className="grid gap-16 pb-16 sm:grid-cols-1 sm:gap-5 sm:px-8 md:grid-cols-2 md:gap-16 md:px-16 lg:grid-cols-3 w-full">
       {state &&
         state.issue.map((issue) => (
           <IssueCard key={issue.createdAt} issueData={issue} />
