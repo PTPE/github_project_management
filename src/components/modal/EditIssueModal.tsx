@@ -59,11 +59,11 @@ export default function EditIssueModal() {
             type === "edit" ? "text-zinc-500 cursor-not-allowed" : ""
           }`}
           defaultValue={defaultIssue.repository}
-          onChange={(e) =>
+          onChange={(e) => {
             setForm((prev) => {
-              return { ...prev, status: e.target.value };
-            })
-          }
+              return { ...prev, repository: e.target.value };
+            });
+          }}
           disabled={type === "edit"}
         >
           {state.repositoryList.map((repository) => (
